@@ -13,11 +13,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -28,12 +24,17 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.PI
@@ -51,7 +52,8 @@ class MainActivity : ComponentActivity() {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFF101010))
+                    .background(Color(0xFFFFFF))
+                    //.background(Color(0xFF101010))
             ) {
 
                 Row(
@@ -84,7 +86,7 @@ class MainActivity : ComponentActivity() {
                     )
 
  */
-
+/*
 
                     DropDown(
                         text = "Portifólio",
@@ -97,14 +99,65 @@ class MainActivity : ComponentActivity() {
                                 .background(Color.Green)
                         )
                     }
+ */
 
-
+                CircularProgressBar(percentage = 0.8f, number = 100)
 
                 }
             }
         }
     }
 }
+
+
+//Progress bar
+@Composable
+fun CircularProgressBar(
+    percentage: Float,
+    number: Int,
+    fontSize: TextUnit = 28.sp,
+    radius: Dp = 50.dp,
+    color: Color = Color.Green,
+    strokeWidth: Dp = 8.dp,
+    animDuration: Int = 1000,
+    animDelay: Int = 0
+){
+    var animationPlayer by remember {
+        mutableStateOf(false)
+    }
+    val curPercentage = animateFloatAsState(
+        targetValue = if(animationPlayer) percentage else 0f,
+        animationSpec = tween(
+            durationMillis = animDuration,
+            delayMillis = animDelay
+        )
+    )
+    LaunchedEffect(key1 = true){
+        animationPlayer = true
+    }
+
+    Box (
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(radius * 2f)
+            ){
+        Canvas(modifier = Modifier.size(radius * 2f)) {
+            drawArc(
+                color = color,
+                -90f,
+                360 * curPercentage.value,
+                useCenter = false,
+                style = Stroke(strokeWidth.toPx(),cap = StrokeCap.Round)
+            )
+        }
+        Text(
+            text = (curPercentage.value * number).toInt().toString(),
+            color = Color.Black,
+            fontSize = fontSize,
+            fontWeight = FontWeight.Bold
+            )
+    }
+}
+
 
 @Composable
 fun VolumeBar(
